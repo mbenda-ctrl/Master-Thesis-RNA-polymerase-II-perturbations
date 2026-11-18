@@ -1,0 +1,3 @@
+# Dataset pubblico GSE152062 (HEK293T, anti-Pol II ChIP-seq, UT vs KCl). Completare con i run SRA di ciascun campione.
+run	sample
+SRR11959775	HEK293T_KCl_PolII_R1

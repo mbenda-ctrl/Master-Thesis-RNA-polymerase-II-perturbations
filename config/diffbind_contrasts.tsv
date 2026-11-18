@@ -1,0 +1,5 @@
+contrast	treated	control	peak_format
+Slow_vs_Amr	Slow	Amr	narrow
+Fast_vs_Amr	Fast	Amr	narrow
+Storm_vs_UT	Storm	UT	narrow
+KCl_vs_UT	KCl	UTpub	macs

@@ -1,0 +1,20 @@
+# Conda environment for the ChIP-seq processing steps (01_chipseq)
+# conda env create -f environment/chipseq.yml && conda activate chipseq
+name: chipseq
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - fastqc
+  - fastp=0.22.0
+  - multiqc
+  - bowtie2=2.4.5
+  - samtools=1.19.2
+  - deeptools=3.5.6
+  - macs3=3.0.2
+  - sra-tools
+  - python=3.11
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib

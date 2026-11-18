@@ -1,0 +1,7 @@
+# Python packages for the downstream scripts (metagene plots, heatmaps, modkit, RNAkinet aggregation)
+numpy
+pandas
+scipy
+matplotlib
+statsmodels
+openpyxl

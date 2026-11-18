@@ -1,0 +1,15 @@
+SampleID	Condition	Replicate	bam	peaks
+UT1	UT	1	S61451_IP_WT_1_S77.sorted.bam	S61451_IP_WT_1_S77_narrow_peaks.narrowPeak
+UT2	UT	2	S61465_IP_Nacl_2_S12.sorted.bam	S61465_IP_Nacl_2_S12_narrow_peaks.narrowPeak
+Storm1	Storm	1	S61452_IP_Storm_1_S58.sorted.bam	S61452_IP_Storm_1_S58_narrow_peaks.narrowPeak
+Storm2	Storm	2	S61464_IP_Storm_2_S51.sorted.bam	S61464_IP_Storm_2_S51_narrow_peaks.narrowPeak
+Amr1	Amr	1	S61454_IP_Amr_1_S33.sorted.bam	S61454_IP_Amr_1_S33_narrow_peaks.narrowPeak
+Amr2	Amr	2	S61466_IP_Amr_2_S2.sorted.bam	S61466_IP_Amr_2_S2_narrow_peaks.narrowPeak
+Fast1	Fast	1	S61455_IP_E11_1_S50.sorted.bam	S61455_IP_E11_1_S50_narrow_peaks.narrowPeak
+Fast2	Fast	2	S61467_IP_E22_2_S10.sorted.bam	S61467_IP_E22_2_S10_narrow_peaks.narrowPeak
+Slow1	Slow	1	S61456_IP_C412_1_S49.sorted.bam	S61456_IP_C412_1_S49_narrow_peaks.narrowPeak
+Slow2	Slow	2	S61468_IP_C422_2_S47.sorted.bam	S61468_IP_C422_2_S47_narrow_peaks.narrowPeak
+UTpub1	UTpub	1	HEK293T_UT_PolII_R1.q30.sorted.bam	UT_R1_full_peaks.xls
+UTpub2	UTpub	2	HEK293T_UT_PolII_R2.q30.sorted.bam	UT_R2_full_peaks.xls
+KCl1	KCl	1	HEK293T_KCl_PolII_R1.q30.sorted.bam	KCl_R1_full_peaks.xls
+KCl2	KCl	2	HEK293T_KCl_PolII_R2.q30.sorted.bam	KCl_R2_full_peaks.xls
