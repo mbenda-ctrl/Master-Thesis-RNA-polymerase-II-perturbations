@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
-Aggrega il file RNAkinet per-read (read_id, 5eu_mod_score, 5eu_modified_prediction,
+PASSO 1 - Aggrega il file RNAkinet per-read (read_id, 5eu_mod_score, 5eu_modified_prediction,
 gene_id, gene_name, sample) a livello di GENE e CAMPIONE.
 
 Lavora a blocchi (chunk) per non caricare tutto il file in RAM in una volta —
 necessario per file da ~1GB con decine di milioni di righe.
 
-USO:
-    python3 aggrega_rnakinet_per_gene.py /percorso/al/file_rnakinet.tsv /percorso/output_aggregato.csv
+USO (un file per campione):
+    python3 01_aggrega_rnakinet_per_gene.py <file_rnakinet_per_read.tsv> <cartella_output> HEK_<CONDIZIONE>_R<n>
+    es.  ... rnakinet_STORM_rep1.tsv results/nascent/rnakinet_genes HEK_STORM_R1
+    -> results/nascent/rnakinet_genes/aggregato_HEK_STORM_R1_rnakinet.csv
+CONDIZIONE = AMR, E11, C412, WT, STORM o NACL: il nome del file e' quello che leggono
+03_nascent_rna/02_deseq2_nascent.R, le heatmap e gli script di integrazione.
 
 Se il separatore non e' il tab, cambia SEP sotto (es. ',' per CSV).
 """
@@ -64,7 +68,12 @@ def main(path_input, path_output):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print('Uso: python3 aggrega_rnakinet_per_gene.py <file_input> <file_output.csv>')
+    if len(sys.argv) != 4:
+        print('Uso: python3 01_aggrega_rnakinet_per_gene.py <file_input> <cartella_output> HEK_<CONDIZIONE>_R<n>')
         sys.exit(1)
-    main(sys.argv[1], sys.argv[2])
+    import os, re
+    label = sys.argv[3]
+    if not re.fullmatch(r"HEK_(AMR|E11|C412|WT|STORM|NACL)_R[0-9]", label):
+        sys.exit(f"Etichetta non valida: {label} (atteso HEK_<AMR|E11|C412|WT|STORM|NACL>_R<n>)")
+    os.makedirs(sys.argv[2], exist_ok=True)
+    main(sys.argv[1], os.path.join(sys.argv[2], f"aggregato_{label}_rnakinet.csv"))

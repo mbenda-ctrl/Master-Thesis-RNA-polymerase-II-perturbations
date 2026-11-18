@@ -15,8 +15,8 @@ args    <- commandArgs(trailingOnly = TRUE)
 ALL_DIR <- if (length(args) >= 1) args[1] else "RNAseq"
 LST_DIR <- if (length(args) >= 2) args[2] else "rnaseq_lists"
 OUT_DIR <- if (length(args) >= 3) args[3] else "volcano_RNAseq"
-RNAKINET <- "../nascent/input"           # simboli di riserva (stessa annotazione Ensembl)
-dir.create(OUT_DIR, showWarnings = FALSE)
+RNAKINET <- Sys.getenv("RNAKINET_DIR", "results/nascent/rnakinet_genes")   # simboli di riserva (stessa annotazione Ensembl)
+dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 
 TOP_N   <- 10      # geni etichettati per direzione
 LFC_CUT <- 0.58
@@ -28,8 +28,9 @@ CONTRASTS <- list(   # nome = c(tabella completa, prefisso liste, soglia padj, t
 COL <- c(UP = "#b2182b", DOWN = "#2166ac", NS = "#c8c8c8")
 
 nv <- function(x) sub("\\.[0-9]+$", "", x)
-map <- do.call(rbind, lapply(list.files(RNAKINET, "rnakinet.*csv$", full.names = TRUE),
-                             function(f) read.csv(f)[, c("gene_id", "gene_name")]))
+rk_files <- list.files(RNAKINET, "rnakinet.*csv$", full.names = TRUE)
+map <- if (length(rk_files)) do.call(rbind, lapply(rk_files, function(f) read.csv(f)[, c("gene_id", "gene_name")])) else
+         data.frame(gene_id = character(), gene_name = character())
 map$gene_id <- nv(map$gene_id); map <- map[!duplicated(map$gene_id), ]
 sym_rk <- setNames(map$gene_name, map$gene_id)
 

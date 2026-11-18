@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Costruisce un BED6 (e una tabella con TSS/TES) di UN trascritto per gene, a partire da un GTF
-e da una tabella di geni (gene_set_*.tsv, colonna ENSEMBL).
+PASSO 8b - Costruisce un BED6 (e una tabella con TSS/TES) di UN trascritto per gene, a partire da un GTF
+e da una tabella di geni (gene_set_*.tsv del passo 08a: colonna gene_id o ENSEMBL).
 
 Scelta del trascritto per gene: MANE_Select > Ensembl_canonical > piu lungo.
 Funziona con GTF GENCODE, Ensembl e MANE (Ensembl). Legge anche .gz.
 
 Uso:
-  python make_gene_bed.py annotazione.gtf.gz gene_set_union.tsv out/union [--min-len 1000]
+  python 08b_make_gene_bed.py gencode.v48.basic.annotation.gtf.gz gene_set_union_n2.tsv \
+         consensus/genes_pc_union_MANE_n2_min1kb --min-len 1000 --biotype protein_coding
                           [--biotype protein_coding] [--add-chr]
 """
 import argparse, gzip, re, sys
@@ -50,7 +51,7 @@ def pick(lst):
 G = pd.read_csv(a.genes, sep="\t")
 out, n = [], dict(no_ensembl=0, not_in_gtf=0, biotype=0, too_short=0, ok=0)
 for _, r in G.iterrows():
-    e = r.get("ENSEMBL")
+    e = r.get("ENSEMBL", r.get("gene_id"))                 # gene_set_*.tsv del passo 08a: colonna gene_id
     if pd.isna(e): n["no_ensembl"] += 1; continue
     lst = tx.get(str(e).split(".")[0])
     if not lst: n["not_in_gtf"] += 1; continue
@@ -60,8 +61,8 @@ for _, r in G.iterrows():
     if L < a.min_len: n["too_short"] += 1; continue
     tss, tes = (t["start"], t["end"]) if t["strand"] == "+" else (t["end"], t["start"])
     out.append(dict(chrom=t["chrom"], start0=t["start"] - 1, end=t["end"],
-                    name=t["name"] or r["symbol"], score=0, strand=t["strand"],
-                    EntrezID=r["EntrezID"], ENSEMBL=e, transcript=t["tx"], selected_by=why,
+                    name=t["name"] or r.get("symbol", r.get("gene_name")), score=0, strand=t["strand"],
+                    EntrezID=r.get("EntrezID"), ENSEMBL=e, transcript=t["tx"], selected_by=why,
                     TSS=tss, TES=tes, length=L, n_samples=r.get("n_samples")))
     n["ok"] += 1
 

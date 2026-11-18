@@ -42,11 +42,11 @@ MAKE_LOG=yes         # yes = genera anche le versioni log
 declare -A SAMPLES=(
   [AmrFastSlow]="Amr_r1 Amr_r2 Fast_r1 Fast_r2 Slow_r1 Slow_r2"
   [UTStorm]="UT_r1 UT_r2 Storm_r1 Storm_r2"
-  [KCl_UTpub]="UTpub_r1 UTpub_r2 KCl_r1 KCl_r2"
+  # [KCl_UTpub]="UTpub_r1 UTpub_r2 KCl_r1 KCl_r2"   # dataset pubblico, da integrare
   [Amr_test]="Amr_r1 Amr_r2"
 )
 # di default i 3 contrasti; si puo' cambiare dall'esterno con la variabile CONTRASTS
-CONTRASTS="${CONTRASTS:-AmrFastSlow UTStorm KCl_UTpub}"
+CONTRASTS="${CONTRASTS:-AmrFastSlow UTStorm}"   # + KCl_UTpub (dataset pubblico)
 
 # ---------------- preparazione ----------------
 mkdir -p "$OUT/matrici" "$OUT/plot" "$OUT/tmp"

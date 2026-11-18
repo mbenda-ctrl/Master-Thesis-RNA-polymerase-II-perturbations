@@ -9,7 +9,7 @@
 #    tiene il termine con p.adjust più basso)
 #  - universo:
 #      genoma = default di enrichGO (tutti i geni con annotazione GO nell'OrgDb)
-#      bed    = geni del BED testati in RNA-seq e nel nascent (come go_cluster.R "bed")
+#      bed    = geni del BED (conteggi_gene.tab) testati in RNA-seq e nel nascent
 #
 #  Uso: Rscript go_cluster_clusterProfiler.R <tabella_heatmap.tsv> <cartella_output> [BP|MF|CC] [genoma|bed] [n_termini_plot]
 #  Esempio: Rscript go_cluster_clusterProfiler.R heatmap/heatmap_rna/heatmap_rna_Slow_vs_Amr.tsv GO_CP_Slow_genoma BP genoma 25
@@ -23,11 +23,11 @@ ONT  <- if (length(args) >= 3) args[3] else "BP"
 UNIV <- if (length(args) >= 4) args[4] else "genoma"
 NSHOW <- if (length(args) >= 5) as.integer(args[5]) else 10
 CONFR <- sub("heatmap_(rna|chip)_(.*)\\.tsv", "\\2", basename(HEAT))
-# file usati solo per l'universo "bed" (stessi di go_cluster.R)
-BED <- "heatmap/input/conteggi_gene.tab"
-RNA_ALL <- sprintf("RNAseq/%s_all_genes.csv", CONFR)
-NAS_ALL <- sprintf("nascent/%s_all_genes.csv", CONFR)
-MAP_DIR <- "../nascent/input"
+# file usati solo per l'universo "bed"
+BED <- Sys.getenv("GENE_COUNTS", "results/chipseq/gene_counts/conteggi_gene.tab")   # 01_chipseq/12b
+RNA_ALL <- file.path(Sys.getenv("RNA_ALL_DIR", "results/rnaseq/RNAseq"), sprintf("%s_all_genes.csv", CONFR))
+NAS_ALL <- file.path(Sys.getenv("NASCENT_DIR", "results/nascent/DESeq2_nascent"), sprintf("%s_all_genes.csv", CONFR))
+MAP_DIR <- Sys.getenv("RNAKINET_DIR", "results/nascent/rnakinet_genes")
 dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 
 H <- read.delim(HEAT, row.names = 1)

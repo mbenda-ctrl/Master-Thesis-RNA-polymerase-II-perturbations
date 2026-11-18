@@ -33,20 +33,21 @@ declare -A F=(
   [Slow_r1]=S61456_IP_C412_1_S49.bw   [Slow_r2]=S61468_IP_C422_2_S47.bw
   [UT_r1]=S61451_IP_WT_1_S77.bw       [UT_r2]=S61465_IP_Nacl_2_S12.bw
   [Storm_r1]=S61452_IP_Storm_1_S58.bw [Storm_r2]=S61464_IP_Storm_2_S51.bw
-  [UTpub_r1]=HEK293T_UT_PolII_R1_CPM.bw  [UTpub_r2]=HEK293T_UT_PolII_R2_CPM.bw
-  [KCl_r1]=HEK293T_KCl_PolII_R1_CPM.bw   [KCl_r2]=HEK293T_KCl_PolII_R2_CPM.bw
+  # dataset pubblico, da integrare:
+  # [UTpub_r1]=HEK293T_UT_PolII_R1_CPM.bw  [UTpub_r2]=HEK293T_UT_PolII_R2_CPM.bw
+  # [KCl_r1]=HEK293T_KCl_PolII_R1_CPM.bw   [KCl_r2]=HEK293T_KCl_PolII_R2_CPM.bw
 )
-# contrasto -> set di geni (BED in $SETDIR; piu' BED separati da spazio = uniti; ALL = tutti i geni >= 5 kb)
+# contrasto -> set di geni (BED in $SETDIR, creati da 01_chipseq/13_diffbind_gene_sets.py; piu' BED separati da spazio = uniti; ALL = tutti i geni >= 5 kb)
 declare -A SET=(
   [Fast_vs_Amr_UP]="genes_diff_FastvsAmr_UP.bed"
   [Fast_vs_Amr_DOWN]="genes_diff_FastvsAmr_DOWN.bed"
   [Slow_vs_Amr]="genes_diff_SlowvsAmr.bed"
   [Storm_vs_UT]="ALL"
-  [KCl_vs_UTpub]="genes_diff_KCLvsUT_v2.bed"
+  # [KCl_vs_UTpub]="genes_diff_KCLvsUT.bed"   # dataset pubblico
 )
 # contrasto -> "trattato controllo"
 declare -A C=([Fast_vs_Amr_UP]="Fast Amr" [Fast_vs_Amr_DOWN]="Fast Amr" [Slow_vs_Amr]="Slow Amr" [Storm_vs_UT]="Storm UT" [KCl_vs_UTpub]="KCl UTpub")
-ORDER="Fast_vs_Amr_UP Fast_vs_Amr_DOWN Slow_vs_Amr Storm_vs_UT KCl_vs_UTpub"
+ORDER="Fast_vs_Amr_UP Fast_vs_Amr_DOWN Slow_vs_Amr Storm_vs_UT"   # + KCl_vs_UTpub (dataset pubblico)
 
 # ---------------- controlli ----------------
 for f in "$GENES_ALL" "$PY"; do [[ -s "$f" ]] || { echo "ERRORE: manca $f"; exit 1; }; done

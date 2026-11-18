@@ -23,8 +23,8 @@ has_pkg <- function(p) requireNamespace(p, quietly = TRUE)
 # PASSO 0. Parametri
 # -----------------------------------------------------------------------------
 args      <- commandArgs(trailingOnly = TRUE)
-INPUT_DIR <- if (length(args) >= 1) args[1] else "input"
-OUT_DIR   <- if (length(args) >= 2) args[2] else "DESeq2_nascent_global"
+INPUT_DIR <- if (length(args) >= 1) args[1] else "results/nascent/rnakinet_genes"
+OUT_DIR   <- if (length(args) >= 2) args[2] else "results/nascent/DESeq2_nascent"
 
 MIN_READS <- 5        # reads modificate minime in OGNI campione del confronto
 PADJ_CUT  <- 0.05     # soglia FDR di default

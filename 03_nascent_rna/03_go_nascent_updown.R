@@ -9,14 +9,14 @@
 # =============================================================================
 suppressPackageStartupMessages({ library(org.Hs.eg.db); library(GO.db); library(ggplot2) })
 args <- commandArgs(trailingOnly = TRUE)
-OUT <- if (length(args) >= 1) args[1] else "GO_nascent_UP_DOWN"
+OUT <- if (length(args) >= 1) args[1] else "results/nascent/GO_nascent_UP_DOWN"
 ONT <- if (length(args) >= 2) args[2] else "BP"
 MIN_SIZE <- 10; MAX_SIZE <- 500; PADJ_CUT <- 0.05; JACC_MAX <- 0.5; TOP <- 10
 CONF <- list(Slow_vs_Amr = c("Slow_vs_Amr", "Slow_vs_Amr", "Slow vs Amr"),
              Fast_vs_Amr = c("Fast_vs_Amr", "Fast_vs_Amr", "Fast vs Amr"),
              Storm_vs_UT = c("STORM_vs_WT", "Storm_vs_UT", "Storm vs UT"),
              NaCl_vs_UT  = c("NACL_vs_WT",  "NaCl_vs_UT",  "NaCl vs UT"))
-dir.create(OUT, showWarnings = FALSE)
+dir.create(OUT, recursive = TRUE, showWarnings = FALSE)
 nv <- function(x) sub("\\.[0-9]+$", "", x)
 term_all <- suppressMessages(AnnotationDbi::select(GO.db, keys = keys(GO.db), keytype = "GOID", columns = c("TERM", "ONTOLOGY")))
 term_name <- setNames(term_all$TERM, term_all$GOID)
@@ -33,7 +33,7 @@ reduce <- function(res) {
 riep <- list(); tops <- list()
 for (nm in names(CONF)) {
   lst <- CONF[[nm]][1]; tab <- CONF[[nm]][2]; tit <- CONF[[nm]][3]
-  A <- read.csv(file.path("nascent", paste0(tab, "_all_genes.csv")))
+  A <- read.csv(file.path(Sys.getenv("NASCENT_DIR", "results/nascent/DESeq2_nascent"), paste0(tab, "_all_genes.csv")))
   A <- A[!is.na(A$padj), ]; A$ens <- nv(A$gene_id); A$symbol <- A$gene_name
   map <- suppressMessages(AnnotationDbi::select(org.Hs.eg.db, keys = unique(A$ens), keytype = "ENSEMBL", columns = c("ENTREZID", "SYMBOL")))
   map <- map[!is.na(map$ENTREZID) & !duplicated(map$ENSEMBL), ]

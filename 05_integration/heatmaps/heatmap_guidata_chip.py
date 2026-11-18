@@ -101,7 +101,7 @@ hdr = raw.loc["gene_id"].tolist(); raw = raw.drop(index="gene_id"); raw.columns 
 RNA = raw.astype(float)
 RNA.index = RNA.index.str.replace(r"\.\d+$", "", regex=True); RNA = RNA.groupby(level=0).sum()
 MOD = {}; NAME = {}
-files = sorted(glob.glob(os.path.join(a.nascent_csv_dir, "*rnakinet_unique_clean.csv")))
+files = sorted(glob.glob(os.path.join(a.nascent_csv_dir, "*rnakinet*.csv")))
 for f in files:
     s = re.search(r"HEK_(\w+?_R\d)", os.path.basename(f)).group(1); d = pd.read_csv(f)
     d["gid"] = d.gene_id.str.replace(r"\.\d+$", "", regex=True)
@@ -151,6 +151,8 @@ CMAP_GRIGIO = LinearSegmentedColormap.from_list("g", ["#f2f2f2", "#9e9e9e", "#30
 riepilogo = []
 for comp, (t, c, (ct, cc), integ, rc, rt, rexp, nc, nt, titolo) in INFO.items():
     if a.confronti and comp not in a.confronti: continue
+    if comp == "KCl_vs_UTpub" and not a.counts_dir_kcl:                  # ChIP pubblica KCl / UT* non fornita
+        print(f"\n=== {comp}: saltato (dataset pubblico non fornito: --counts-dir-kcl) ==="); continue
     print(f"\n=== {comp} ===")
     padj = 0.1 if comp == "KCl_vs_UTpub" else 0.05                     # soglie usate nelle liste (solo per il riepilogo)
     lst, rall, nas = SRC[comp]

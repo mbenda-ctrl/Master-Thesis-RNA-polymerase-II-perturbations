@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Geni GENCODE (o altro GTF) con almeno un picco dentro l'unita trascrizionale.
+PASSO 8a - Geni GENCODE (o altro GTF) con almeno un picco dentro l'unita trascrizionale.
 
 Unita trascrizionale = corpo del gene (feature 'gene' del GTF) piu, opzionalmente, una finestra a monte
 del TSS (--up) e a valle del TES (--down), tenendo conto dello strand. Un picco "cade" nel gene se si
@@ -27,6 +27,7 @@ ap.add_argument("--up", type=int, default=3000, help="bp a monte del TSS inclusi
 ap.add_argument("--down", type=int, default=300, help="bp a valle del TES inclusi (default 300)")
 ap.add_argument("--biotype", default=None, help="lista separata da virgole, es. protein_coding,lncRNA")
 ap.add_argument("--min-len", type=int, default=0)
+ap.add_argument("--min-samples", type=int, default=2, help="set consensus: geni con picchi in almeno N campioni (default 2)")
 ap.add_argument("--core-exclude", default="", help="sottostringhe dei campioni da escludere per l'intersezione 'core'")
 a = ap.parse_args()
 os.makedirs(a.out, exist_ok=True)
@@ -117,6 +118,7 @@ def save(name, mask):
 
 print(f"geni nel GTF: {n_all} | dopo filtri: {len(G)} | campioni: {len(samples)}")
 save("union", T.n_samples >= 1)
+save(f"union_n{a.min_samples}", T.n_samples >= a.min_samples)        # set consensus (input del passo 08b)
 save("intersection", T.n_samples == len(samples))
 if excl: save("intersection_core", T.n_core == len(core))
 print(pd.DataFrame(summ).to_string(index=False))

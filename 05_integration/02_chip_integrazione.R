@@ -2,7 +2,7 @@
 # =============================================================================
 #  Integrazione ChIP (DiffBind) x RNA-seq x RNA nascente
 #
-#  1. BED: geni su cui si assegnano le regioni ChIP (geni_intersezione_collega_MANE.bed)
+#  1. BED: geni su cui si assegnano le regioni ChIP (geni_intersezione_MANE.bed, 01_chipseq/12b)
 #  2. Gene "ChIP" = gene (corpo genico +/- FLANK) che si sovrappone ad almeno una
 #     regione DiffBind con FDR <= fdr del confronto (1 = tutti i siti). Gain = Fold > 0, Loss = Fold < 0.
 #  3. RNA-seq: liste UP/DOWN complete; nascente: colonna status, complete.
@@ -11,36 +11,41 @@
 #     (RNA-seq, nascente, ChIP), più tabelle per gene.
 #
 #  Uso: Rscript 02_chip_integrazione.R [confronti separati da virgola] [cartella_output]
-#       es. Rscript 02_chip_integrazione.R Fast_vs_Amr chip_integrazione_Fast
+#       es. Rscript 02_chip_integrazione.R Slow_vs_Amr,Fast_vs_Amr,Storm_vs_UT results/integration/chip
+#  Percorsi di input modificabili con variabili d'ambiente:
+#       GENE_BED, DIFFBIND_DIR, RNAKINET_DIR, RNA_LISTS_DIR, NASCENT_DIR
 # =============================================================================
 suppressPackageStartupMessages({ library(GenomicRanges); library(ggplot2); library(patchwork) })
 
 # ---- PASSO 0: parametri e file ----------------------------------------------
-BED       <- "chip/geni_intersezione_collega_MANE.bed"
-RNAKINET  <- "../nascent/input"         # per la mappa ENSG -> simbolo
-RNA_DIR   <- "rnaseq_lists"
-NAS_DIR   <- "nascent"
-OUT_DIR   <- "chip_integrazione"
+env <- function(k, d) { v <- Sys.getenv(k); if (nzchar(v)) v else d }
+BED       <- env("GENE_BED",      "results/chipseq/gene_counts/geni_intersezione_MANE.bed")
+DB_DIR    <- env("DIFFBIND_DIR",  "results/chipseq/diffbind")      # <confronto>_DiffBind_all_sites.tsv (01_chipseq/10)
+RNAKINET  <- env("RNAKINET_DIR",  "results/nascent/rnakinet_genes") # per la mappa ENSG -> simbolo
+RNA_DIR   <- env("RNA_LISTS_DIR", "results/rnaseq/rnaseq_lists")   # 02_rnaseq/02_crea_liste_rnaseq.py
+NAS_DIR   <- env("NASCENT_DIR",   "results/nascent/DESeq2_nascent") # 03_nascent_rna/02_deseq2_nascent.R
+OUT_DIR   <- "results/integration/chip_integrazione"
 FLANK     <- 1000                       # bp aggiunte a ciascun lato del gene
 
 # fdr = soglia FDR delle regioni DiffBind (1 = tutti i siti del consensus); fold = |Fold| minimo (opzionale)
 SETUP <- list(
-  Slow_vs_Amr = list(diffbind = "chip/Slow_vs_Amr_DiffBind_FULL.tsv", sep = "\t", fdr = 0.05,
+  Slow_vs_Amr = list(diffbind = file.path(DB_DIR, "Slow_vs_Amr_DiffBind_all_sites.tsv"), sep = "\t", fdr = 0.05,
                      rna = "Slow_vs_Amr", nas = "Slow_vs_Amr", chip_label = "ChIP Slow vs Amr"),
-  NaCl_vs_UT  = list(diffbind = "chip/KCl_vs_UT_DiffBind_all_sites.tsv", sep = "\t", fdr = 0.01, fold = 1.5,
+  # NaCl vs UT: ChIP del dataset pubblico KCl vs UT* (da integrare)
+  NaCl_vs_UT  = list(diffbind = file.path(DB_DIR, "KCl_vs_UT_DiffBind_all_sites.tsv"), sep = "\t", fdr = 0.01, fold = 1.5,
                      rna = "NACL_vs_WT", nas = "NaCl_vs_UT", chip_label = "ChIP KCl vs UT"),
-  Fast_vs_Amr = list(diffbind = "chip/Fast_vs_Amr_DiffBind_FULL.tsv", sep = "\t", fdr = 1,
+  Fast_vs_Amr = list(diffbind = file.path(DB_DIR, "Fast_vs_Amr_DiffBind_all_sites.tsv"), sep = "\t", fdr = 1,
                      rna = "Fast_vs_Amr", nas = "Fast_vs_Amr", chip_label = "ChIP Fast vs Amr (tutti i siti)"),
-  Storm_vs_UT = list(diffbind = "chip/Storm_vs_UT_DiffBind_FULL.tsv", sep = "\t", fdr = 1,
+  Storm_vs_UT = list(diffbind = file.path(DB_DIR, "Storm_vs_UT_DiffBind_all_sites.tsv"), sep = "\t", fdr = 1,
                      rna = "STORM_vs_WT", nas = "Storm_vs_UT", chip_label = "ChIP Storm vs UT (tutti i siti)"))
 
 # Confronti da eseguire e cartella di output (da riga di comando)
 #   Rscript 02_chip_integrazione.R Fast_vs_Amr chip_integrazione_Fast
 args <- commandArgs(trailingOnly = TRUE)
-RUN  <- if (length(args) >= 1) strsplit(args[1], ",")[[1]] else c("Slow_vs_Amr", "NaCl_vs_UT")
+RUN  <- if (length(args) >= 1) strsplit(args[1], ",")[[1]] else c("Slow_vs_Amr", "Fast_vs_Amr", "Storm_vs_UT")
 if (length(args) >= 2) OUT_DIR <- args[2]
 SETUP <- SETUP[RUN]
-dir.create(OUT_DIR, showWarnings = FALSE)
+dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 COL <- c(RNA = "#2a78d6", NAS = "#eb6834", CHIP = "#1baf7a")
 
 # ---- PASSO 1: universo dei geni (BED) ---------------------------------------

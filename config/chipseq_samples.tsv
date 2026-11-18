@@ -1,0 +1,11 @@
+label	condition	replicate	ip_bam	input_bam
+Amr_r1	Amr	1	S61454_IP_Amr_1_S33.sorted.bam	S61448_Input_Amr_1_S29.sorted.bam
+Amr_r2	Amr	2	S61466_IP_Amr_2_S2.sorted.bam	S61460_Input_Amr_2_S37.sorted.bam
+Fast_r1	Fast	1	S61455_IP_E11_1_S50.sorted.bam	S61449_Input_E11_1_S60.sorted.bam
+Fast_r2	Fast	2	S61467_IP_E22_2_S10.sorted.bam	S61461_Input_E22_2_S78.sorted.bam
+Slow_r1	Slow	1	S61456_IP_C412_1_S49.sorted.bam	S61450_Input_C412_1_S16.sorted.bam
+Slow_r2	Slow	2	S61468_IP_C422_2_S47.sorted.bam	S61462_Input_C422_2_S35.sorted.bam
+UT_r1	UT	1	S61451_IP_WT_1_S77.sorted.bam	S61445_Input_WT_1_S55.sorted.bam
+UT_r2	UT	2	S61465_IP_Nacl_2_S12.sorted.bam	S61459_Input_Nacl_2_S9.sorted.bam
+Storm_r1	Storm	1	S61452_IP_Storm_1_S58.sorted.bam	S61446_Input_Storm_1_S56.sorted.bam
+Storm_r2	Storm	2	S61464_IP_Storm_2_S51.sorted.bam	S61458_Input_Storm_2_S57.sorted.bam

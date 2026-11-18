@@ -9,7 +9,3 @@ Fast1	Fast	1	S61455_IP_E11_1_S50.sorted.bam	S61455_IP_E11_1_S50_narrow_peaks.nar
 Fast2	Fast	2	S61467_IP_E22_2_S10.sorted.bam	S61467_IP_E22_2_S10_narrow_peaks.narrowPeak
 Slow1	Slow	1	S61456_IP_C412_1_S49.sorted.bam	S61456_IP_C412_1_S49_narrow_peaks.narrowPeak
 Slow2	Slow	2	S61468_IP_C422_2_S47.sorted.bam	S61468_IP_C422_2_S47_narrow_peaks.narrowPeak
-UTpub1	UTpub	1	HEK293T_UT_PolII_R1.q30.sorted.bam	UT_R1_full_peaks.xls
-UTpub2	UTpub	2	HEK293T_UT_PolII_R2.q30.sorted.bam	UT_R2_full_peaks.xls
-KCl1	KCl	1	HEK293T_KCl_PolII_R1.q30.sorted.bam	KCl_R1_full_peaks.xls
-KCl2	KCl	2	HEK293T_KCl_PolII_R2.q30.sorted.bam	KCl_R2_full_peaks.xls

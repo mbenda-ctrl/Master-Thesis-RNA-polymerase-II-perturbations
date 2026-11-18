@@ -13,6 +13,8 @@ Colonne (log2FC, stessa scala blu-rosso):
 Clustering: Ward sulle 4 colonne (vuoti = 0, valori tagliati a +-3), k gruppi.
 
 Uso: python heatmap_guidata_stech.py <cartella_PolII_tutti> <cartella_PolII_sig> <outdir> [k]
+  <cartella_PolII_*> = tabelle heatmap_chip_<confronto>.tsv di heatmap_guidata_chip.py (tutti i siti / solo significativi)
+  Altri input (variabili d'ambiente): M6A_XLSX, RNA_LISTS_DIR, RNA_ALL_DIR, NASCENT_DIR
 """
 import sys, os, numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg")
@@ -27,12 +29,16 @@ H_FIG = float(sys.argv[6]) if len(sys.argv) > 6 else None      # altezza figura 
 SOLO = sys.argv[7].split(",") if len(sys.argv) > 7 else None   # solo questi confronti
 LIM, CLIP = 2, 3
 os.makedirs(OUT, exist_ok=True)
-XL = "../m6a/geni_variazione_siti_e_stechiometria_log2FC.xlsx"
+XL = os.environ.get("M6A_XLSX", "results/modkit/diff_m6A/geni_variazione_siti_e_stechiometria_log2FC.xlsx")
+RNA_LISTS = os.environ.get("RNA_LISTS_DIR", "results/rnaseq/rnaseq_lists")
+RNA_ALL = os.environ.get("RNA_ALL_DIR", "results/rnaseq/RNAseq")
+NASC = os.environ.get("NASCENT_DIR", "results/nascent/DESeq2_nascent")
 # confronto m6A: (heatmap ChIP, liste RNA-seq, tabelle RNA-seq/nascent, Pol II sig da file (None = tutti), titolo)
 CONF = {"Slow_vs_Amr": ("Slow_vs_Amr", "Slow_vs_Amr", "Slow_vs_Amr", True, "Slow vs Amr", "Pol II Slow vs Amr (FDR < 0.05)"),
         "Fast_vs_Amr": ("Fast_vs_Amr", "Fast_vs_Amr", "Fast_vs_Amr", False, "Fast vs Amr", "Pol II Fast vs Amr (tutti i siti)"),
-        "Storm_vs_WT": ("Storm_vs_UT", "STORM_vs_WT", "Storm_vs_UT", False, "Storm vs UT", "Pol II Storm vs UT (tutti i siti)"),
-        "NaCl_vs_WT":  ("KCl_vs_UTpub", "NACL_vs_WT", "NaCl_vs_UT", True, "NaCl vs UT", "Pol II KCl vs UT* (FDR < 0.01, |Fold| > 1.5)")}
+        "Storm_vs_WT": ("Storm_vs_UT", "STORM_vs_WT", "Storm_vs_UT", False, "Storm vs UT", "Pol II Storm vs UT (tutti i siti)")}
+# NaCl vs UT richiede la ChIP del dataset pubblico KCl / UT* (da integrare):
+# CONF["NaCl_vs_WT"] = ("KCl_vs_UTpub", "NACL_vs_WT", "NaCl_vs_UT", True, "NaCl vs UT", "Pol II KCl vs UT* (FDR < 0.01, |Fold| > 1.5)")
 CMAP_LFC = LinearSegmentedColormap.from_list("l", ["#2166ac", "#9cc3dc", "#f5efe0", "#ef9a7c", "#b2182b"])
 CMAP_GRIGIO = LinearSegmentedColormap.from_list("g", ["#f2f2f2", "#9e9e9e", "#303030"])
 nv = lambda s: pd.Series(s).astype(str).str.replace(r"\.\d+$", "", regex=True).values
@@ -52,12 +58,12 @@ for sh, (hc, lst, tab, polsig, titolo, pol_lab) in CONF.items():
     else:
         D["sig Pol II"] = D["Pol II"].notna()
     # RNA-seq
-    L = pd.concat([pd.read_csv(f"../rnaseq_lists/{lst}_{d}.csv", index_col=0) for d in ("UP", "DOWN")]); L.index = nv(L.index)
-    RA = pd.read_csv(f"../RNAseq/{tab}_all_genes.csv"); RA.index = nv(RA.gene_id)
+    L = pd.concat([pd.read_csv(f"{RNA_LISTS}/{lst}_{d}.csv", index_col=0) for d in ("UP", "DOWN")]); L.index = nv(L.index)
+    RA = pd.read_csv(f"{RNA_ALL}/{tab}_all_genes.csv"); RA.index = nv(RA.gene_id)
     D["RNA-seq"] = L.log2FoldChange.reindex(D.index).combine_first(RA.log2FC_MLE.reindex(D.index))
     D["sig RNA-seq"] = D.index.isin(L.index)
     # nascent
-    NA_ = pd.read_csv(f"../nascent/{tab}_all_genes.csv"); NA_.index = nv(NA_.gene_id); NA_ = NA_[~NA_.index.duplicated()]
+    NA_ = pd.read_csv(f"{NASC}/{tab}_all_genes.csv"); NA_.index = nv(NA_.gene_id); NA_ = NA_[~NA_.index.duplicated()]
     D["RNA nascent"] = NA_.log2FC_MLE.reindex(D.index)
     D["sig RNA nascent"] = NA_.status.reindex(D.index).isin(["UP", "DOWN"]).values
     D["sig m6A stechiometria"] = True

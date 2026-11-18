@@ -25,8 +25,8 @@ write_res <- function(x, path) {
 # 1. CONFIGURAZIONE  (modifica solo qui)
 # ----------------------------------------------------------------------------
 args        <- commandArgs(trailingOnly = TRUE)
-COUNTS_FILE <- if (length(args) >= 1) args[1] else "expressed_genes_counts_matrix.tsv"
-OUT_DIR     <- if (length(args) >= 2) args[2] else "DESeq2_results"
+COUNTS_FILE <- if (length(args) >= 1) args[1] else "data/expressed_genes_counts_matrix.tsv"
+OUT_DIR     <- if (length(args) >= 2) args[2] else "results/rnaseq/RNAseq"
 
 PADJ_CUT <- 0.05   # soglia FDR
 LFC_CUT  <- 0.58   # |log2FC| per la lista dei "significativi" (0.58 ≈ fold change 1.5x)

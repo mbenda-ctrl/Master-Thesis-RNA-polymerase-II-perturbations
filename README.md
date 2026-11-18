@@ -47,7 +47,7 @@ Default paths are relative to the repository root (`data/` for inputs, `results/
 | 5 | `05_bigwig_cpm.sh` | deepTools `bamCoverage`: CPM, bin 10 bp, `--extendReads 200` |
 | 6 | `06_bigwig_IPminusInput.sh` | `bigwigCompare --operation subtract` (IP − Input, CPM) |
 | 7 | `07_macs3_peak_calling.sh` | MACS3 3.0.2, `-f BAMPE -g hs`; narrow peaks q < 0.01, broad peaks `--broad --broad-cutoff 0.1` |
-| 8 | `08a_make_gene_bed.py`, `08b_peaks_to_genes.py` | One transcript per gene (MANE Select, GENCODE v48 basic, protein-coding); a peak is assigned to a gene if it falls in the transcription unit (TSS − 3 kb … TES + 300 bp). Consensus set: genes with a peak in ≥ 2 samples, unit ≥ 1 kb (13,542 genes; ≥ 5 kb for metagenes) |
+| 8 | `08a_peaks_to_genes.py`, `08b_make_gene_bed.py` | One transcript per gene (MANE Select, GENCODE v48 basic, protein-coding); a peak is assigned to a gene if it falls in the transcription unit (TSS − 3 kb … TES + 300 bp). Consensus set: genes with a peak in ≥ 2 samples, unit ≥ 1 kb (13,542 genes; ≥ 5 kb for metagenes) |
 | 9 | `09_annotate_peaks_ChIPseeker.R` | ChIPseeker `annotatePeak` on narrow and broad peaks, promoter = TSS ± 1 kb |
 | 10 | `10_diffbind.R` | DiffBind 3.12.0: summit-centred 401 bp consensus (peaks in ≥ 2 samples), DESeq2 with library-size normalisation, report of all sites (`th = 1`) |
 | 11 | `11_diffbind_volcano.py` | Volcano plots of the DiffBind reports |
@@ -118,7 +118,7 @@ were performed upstream and are not included.
 - `03_m6a_polII_venn.R`: overlap between differentially methylated genes and Pol II DiffBind genes.
 - `go_enrichment/go_cluster_clusterProfiler.R`: GO Biological Process enrichment of the heatmap clusters with
   clusterProfiler `compareCluster(fun = "enrichGO")`, org.Hs.eg.db, term size 10–500, BH padj < 0.05,
-  redundancy removed with `simplify` (Wang similarity ≥ 0.7). `go_dotplot_top.R` draws the dot plots.
+  redundancy removed with `simplify` (Wang similarity ≥ 0.7).
 
 ## Software
 

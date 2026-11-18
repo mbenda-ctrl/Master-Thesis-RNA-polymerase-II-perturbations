@@ -48,8 +48,8 @@ declare -A COMP
 COMP[Fast_vs_Amr]="Amr Fast Fast_vs_Amr"
 COMP[Slow_vs_Amr]="Amr Slow Slow_vs_Amr"
 COMP[Storm_vs_UT]="UT Storm Storm_vs_UT"
-COMP[KCl_vs_UTpub]="UTpub KCl NaCl_vs_UT"            # ChIP pubblico KCl / UT*, categorie RNA-seq NaCl vs UT
-ORDER="Fast_vs_Amr Slow_vs_Amr Storm_vs_UT KCl_vs_UTpub"
+# COMP[KCl_vs_UTpub]="UTpub KCl NaCl_vs_UT"            # ChIP pubblico KCl / UT*, categorie RNA-seq NaCl vs UT
+ORDER="Fast_vs_Amr Slow_vs_Amr Storm_vs_UT"   # + KCl_vs_UTpub (dataset pubblico)
 
 # assi y fissi: TSS e gene completo stesso massimo (combinato); differenziale e boxplot +-3
 declare -A YMAX=([TSS]=14 [BODY]=14 [TES]=1)

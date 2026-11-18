@@ -5,29 +5,32 @@
 #  - m6A: fogli <confronto>_diff_metilati / _meno_siti / _persi del file Excel
 #  - Pol II: geni del BED (corpo genico +/- 1 kb) con regioni DiffBind:
 #       Slow vs Amr  FDR < 0.05
-#       NaCl vs WT   ChIP KCl vs UT, FDR < 0.01 e |Fold| > 1.5
+#       (NaCl vs WT con la ChIP pubblica KCl vs UT: da integrare)
 #       Fast, Storm  tutti i siti (nessuna regione significativa)
 #  - Si lavora in ENSG (senza versione); i simboli del BED -> ENSG via file RNAkinet
 #  - Test di Fisher: tra i geni del BED, i geni m6A sono più spesso Pol II?
 #
-#  Uso: Rscript 03_m6a_polII_venn.R   (dalla cartella final_sep)
+#  Uso: Rscript 03_m6a_polII_venn.R [cartella_output]
+#  Input (variabili d'ambiente): M6A_XLSX (04_modkit_m6a/04), GENE_BED (01_chipseq/12b),
+#                                DIFFBIND_DIR (01_chipseq/10), RNAKINET_DIR
 # =============================================================================
 suppressPackageStartupMessages({ library(GenomicRanges); library(ggplot2); library(patchwork); library(readxl) })
 
-XLSX <- "m6a/geni_diff_metilati_e_perdita_siti.xlsx"
-BED  <- "chip/geni_intersezione_collega_MANE.bed"
-RNAKINET <- "../nascent/input"
-OUT  <- "m6a_polII"; FLANK <- 1000
-dir.create(OUT, showWarnings = FALSE)
+env  <- function(k, d) { v <- Sys.getenv(k); if (nzchar(v)) v else d }
+XLSX <- env("M6A_XLSX", "results/modkit/diff_m6A/geni_diff_metilati_e_perdita_siti.xlsx")
+BED  <- env("GENE_BED", "results/chipseq/gene_counts/geni_intersezione_MANE.bed")
+DB_DIR   <- env("DIFFBIND_DIR", "results/chipseq/diffbind")
+RNAKINET <- env("RNAKINET_DIR", "results/nascent/rnakinet_genes")
+args <- commandArgs(trailingOnly = TRUE)
+OUT  <- if (length(args) >= 1) args[1] else "results/integration/m6a_polII"; FLANK <- 1000
+dir.create(OUT, recursive = TRUE, showWarnings = FALSE)
 
 SETUP <- list(
-  Slow_vs_Amr = list(m6a = "Slow_vs_Amr", diffbind = "chip/Slow_vs_Amr_DiffBind_FULL.tsv", fdr = 0.05, fold = 0,
+  Slow_vs_Amr = list(m6a = "Slow_vs_Amr", diffbind = file.path(DB_DIR, "Slow_vs_Amr_DiffBind_all_sites.tsv"), fdr = 0.05, fold = 0,
                      lab = "Pol II Slow vs Amr (FDR < 0.05)"),
-  NaCl_vs_WT  = list(m6a = "NaCl_vs_WT", diffbind = "chip/KCl_vs_UT_DiffBind_all_sites.tsv", fdr = 0.01, fold = 1.5,
-                     lab = "Pol II KCl vs UT (FDR < 0.01, |Fold| > 1.5)"),
-  Fast_vs_Amr = list(m6a = "Fast_vs_Amr", diffbind = "chip/Fast_vs_Amr_DiffBind_FULL.tsv", fdr = 1, fold = 0,
+  Fast_vs_Amr = list(m6a = "Fast_vs_Amr", diffbind = file.path(DB_DIR, "Fast_vs_Amr_DiffBind_all_sites.tsv"), fdr = 1, fold = 0,
                      lab = "Pol II Fast vs Amr (tutti i siti)"),
-  Storm_vs_WT = list(m6a = "Storm_vs_WT", diffbind = "chip/Storm_vs_UT_DiffBind_FULL.tsv", fdr = 1, fold = 0,
+  Storm_vs_WT = list(m6a = "Storm_vs_WT", diffbind = file.path(DB_DIR, "Storm_vs_UT_DiffBind_all_sites.tsv"), fdr = 1, fold = 0,
                      lab = "Pol II Storm vs UT (tutti i siti)"))
 COL <- c("#2a78d6", "#eb6834", "#1baf7a", "#6250d6")   # diff. metilati, meno siti, persi, Pol II
 
@@ -126,7 +129,7 @@ print(S, row.names = FALSE); print(F, row.names = FALSE)
 
 fig <- wrap_plots(plots, nrow = 2) +
   plot_annotation(title = "m6A (diff. metilati, meno siti, siti persi) x Pol II DiffBind",
-                  subtitle = "Pol II: geni del BED (corpo genico +/- 1 kb) con regioni DiffBind; NaCl incrociato con la ChIP KCl")
+                  subtitle = "Pol II: geni del BED (corpo genico +/- 1 kb) con regioni DiffBind")
 ggsave(file.path(OUT, "venn_m6A_PolII.pdf"), fig, width = 13, height = 11)
 ggsave(file.path(OUT, "venn_m6A_PolII.png"), fig, width = 13, height = 11, dpi = 200, bg = "white")
 

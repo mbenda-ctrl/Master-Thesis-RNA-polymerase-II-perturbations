@@ -29,8 +29,9 @@ declare -A IP=(
   [Slow_r1]="S61456_IP_C412_1_S49.bw"   [Slow_r2]="S61468_IP_C422_2_S47.bw"
   [UT_r1]="S61451_IP_WT_1_S77.bw"       [UT_r2]="S61465_IP_Nacl_2_S12.bw"
   [Storm_r1]="S61452_IP_Storm_1_S58.bw" [Storm_r2]="S61464_IP_Storm_2_S51.bw"
-  [UTpub_r1]="HEK293T_UT_PolII_R1_CPM.bw"  [UTpub_r2]="HEK293T_UT_PolII_R2_CPM.bw"     # dati pubblici (UT*)
-  [KCl_r1]="HEK293T_KCl_PolII_R1_CPM.bw"   [KCl_r2]="HEK293T_KCl_PolII_R2_CPM.bw"
+  # dataset pubblico UT*/KCl: da integrare quando i nomi dei file saranno uniformati
+  # [UTpub_r1]="HEK293T_UT_PolII_R1_CPM.bw"  [UTpub_r2]="HEK293T_UT_PolII_R2_CPM.bw"
+  # [KCl_r1]="HEK293T_KCl_PolII_R1_CPM.bw"   [KCl_r2]="HEK293T_KCl_PolII_R2_CPM.bw"
 )
 # etichetta -> parte del nome con cui riconoscere il bigWig dell'input corrispondente
 declare -A INPUT_KEY=(
@@ -39,10 +40,10 @@ declare -A INPUT_KEY=(
   [Slow_r1]="Input_C412"    [Slow_r2]="Input_C422"
   [UT_r1]="Input_WT_1"      [UT_r2]="Input_Nacl_2"
   [Storm_r1]="Input_Storm_1" [Storm_r2]="Input_Storm_2"
-  [UTpub_r1]="UT_Input_R1"  [UTpub_r2]="UT_Input_R2"
-  [KCl_r1]="KCl_Input_R1"   [KCl_r2]="KCl_Input_R2"
+  # [UTpub_r1]="UT_Input_R1"  [UTpub_r2]="UT_Input_R2"
+  # [KCl_r1]="KCl_Input_R1"   [KCl_r2]="KCl_Input_R2"
 )
-SAMPLES="Amr_r1 Amr_r2 Fast_r1 Fast_r2 Slow_r1 Slow_r2 UT_r1 UT_r2 Storm_r1 Storm_r2 UTpub_r1 UTpub_r2 KCl_r1 KCl_r2"
+SAMPLES="Amr_r1 Amr_r2 Fast_r1 Fast_r2 Slow_r1 Slow_r2 UT_r1 UT_r2 Storm_r1 Storm_r2"   # + UTpub_r1 UTpub_r2 KCl_r1 KCl_r2 (dataset pubblico)
 
 # ---------------- controlli ----------------
 mkdir -p "$OUT/tmp" 2>/dev/null
@@ -53,7 +54,7 @@ export TMPDIR="$OUT/tmp"                   # temporanei su E:, non dentro Ubuntu
 command -v bigwigCompare >/dev/null || { echo "ERRORE: bigwigCompare non trovato (conda activate deeptools_env)"; exit 1; }
 
 LOG="$OUT/log_$(date +%Y%m%d_%H%M).txt"   # log con data e ora
-declare -a FATTI SALTATI MANCANTI ERRORI  # liste per il riepilogo finale
+FATTI=(); SALTATI=(); MANCANTI=(); ERRORI=()   # liste per il riepilogo finale
 
 # ---------------- calcolo ----------------
 for s in $SAMPLES; do
