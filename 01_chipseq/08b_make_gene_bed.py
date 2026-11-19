@@ -3,7 +3,8 @@
 PASSO 8b - Costruisce un BED6 (e una tabella con TSS/TES) di UN trascritto per gene, a partire da un GTF
 e da una tabella di geni (gene_set_*.tsv del passo 08a: colonna gene_id o ENSEMBL).
 
-Scelta del trascritto per gene: MANE_Select > Ensembl_canonical > piu lungo.
+Trascritto per gene: MANE Select (tag "MANE_Select" del GTF GENCODE basic). I geni senza MANE Select
+sono esclusi; con --allow-fallback si usa invece Ensembl_canonical e poi il trascritto piu lungo.
 Funziona con GTF GENCODE, Ensembl e MANE (Ensembl). Legge anche .gz.
 
 Uso:
@@ -18,6 +19,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("gtf"); ap.add_argument("genes"); ap.add_argument("prefix")
 ap.add_argument("--min-len", type=int, default=0, help="scarta trascritti piu corti (bp)")
 ap.add_argument("--biotype", default=None, help="es. protein_coding (usa gene_type/gene_biotype se presente)")
+ap.add_argument("--allow-fallback", action="store_true", help="tiene anche i geni senza MANE Select (Ensembl_canonical, poi il piu lungo)")
 ap.add_argument("--add-chr", action="store_true", help="aggiunge 'chr' ai cromosomi (GTF Ensembl: 1,2,...,MT)")
 a = ap.parse_args()
 
@@ -43,19 +45,23 @@ with opener(a.gtf, "rt") as fh:
             biotype=attr(f[8], "gene_type") or attr(f[8], "gene_biotype"), tags=tags))
 
 def pick(lst):
+    if not a.allow_fallback:
+        c = [t for t in lst if "MANE_Select" in t["tags"]]
+        return (max(c, key=lambda t: t["end"] - t["start"]), "MANE_Select") if c else (None, "no_MANE")
     for tag in ("MANE_Select", "Ensembl_canonical"):
         c = [t for t in lst if tag in t["tags"]]
         if c: return max(c, key=lambda t: t["end"] - t["start"]), tag
     return max(lst, key=lambda t: t["end"] - t["start"]), "longest"
 
 G = pd.read_csv(a.genes, sep="\t")
-out, n = [], dict(no_ensembl=0, not_in_gtf=0, biotype=0, too_short=0, ok=0)
+out, n = [], dict(no_ensembl=0, not_in_gtf=0, no_MANE=0, biotype=0, too_short=0, ok=0)
 for _, r in G.iterrows():
     e = r.get("ENSEMBL", r.get("gene_id"))                 # gene_set_*.tsv del passo 08a: colonna gene_id
     if pd.isna(e): n["no_ensembl"] += 1; continue
     lst = tx.get(str(e).split(".")[0])
     if not lst: n["not_in_gtf"] += 1; continue
     t, why = pick(lst)
+    if t is None: n["no_MANE"] += 1; continue
     if a.biotype and t["biotype"] and t["biotype"] != a.biotype: n["biotype"] += 1; continue
     L = t["end"] - t["start"] + 1
     if L < a.min_len: n["too_short"] += 1; continue
@@ -70,6 +76,6 @@ D = pd.DataFrame(out).sort_values(["chrom", "start0"])
 D[["chrom", "start0", "end", "name", "score", "strand"]].to_csv(a.prefix + ".bed", sep="\t", header=False, index=False)
 D.to_csv(a.prefix + ".tsv", sep="\t", index=False)
 print(f"geni in input: {len(G)} | nel BED: {n['ok']}")
-print(f"scartati -> senza ID Ensembl: {n['no_ensembl']}, non nel GTF: {n['not_in_gtf']}, "
+print(f"scartati -> senza ID Ensembl: {n['no_ensembl']}, non nel GTF: {n['not_in_gtf']}, senza MANE Select: {n['no_MANE']}, "
       f"biotype: {n['biotype']}, troppo corti: {n['too_short']}")
 print("trascritto scelto da:", D.selected_by.value_counts().to_dict())
